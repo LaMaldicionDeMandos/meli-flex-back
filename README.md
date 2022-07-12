@@ -1,2 +1,2 @@
-# meli-flex-back
-Prueba de concepto, backend
+# medika-back
+Backend de Medika MBP
