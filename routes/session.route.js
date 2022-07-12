@@ -9,7 +9,7 @@ router.post('/accessToken', (req, res) => {
     .catch(e => res.status(500).send(e.message));
   });
 
-router.post('/tokenRefresh', (req, res) => {
+router.post('/refreshToken', (req, res) => {
   service.refreshMeliToken(req.body.refresh_token)
     .then(token => res.status(201).send(token))
     .catch(e => res.status(500).send(e.message));
