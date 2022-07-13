@@ -6,6 +6,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 const sessionRouter = require('./routes/session.route');
+const meliNotificationsRouter = require('./routes/meli-notifications.route');
 
 const app = express();
 
@@ -30,5 +31,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/session', sessionRouter);
+app.use('/meli/notifications', meliNotificationsRouter);
 
 module.exports = app;
