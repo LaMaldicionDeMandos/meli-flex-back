@@ -3,7 +3,7 @@ const router = express.Router();
 
 router.post('/',  (req, res, next) => {
   const noti = req.body;
-  console.log(`New notification -> ${noti.topic}`);
+  console.log(`New notification -> ${JSON.stringify(noti)}`);
   res.status(201).send({ok: 'ok'});
 });
 
