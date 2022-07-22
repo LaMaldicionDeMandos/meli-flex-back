@@ -1,4 +1,6 @@
 const axios = require('axios').default;
+const redisService = require('./redis.service');
+
 
 const MELI_SECRET = process.env.MELI_SECRET;
 const MELI_APP_ID = process.env.MELI_APP_ID;
@@ -12,6 +14,17 @@ const HEADERS = {
   "content-type": "application/x-www-form-urlencoded"
 };
 
+function userIdKey(accessToken) {
+  return 'USER_ID|' + accessToken;
+}
+
+function saveUser(userData) {
+  const userId = userData.user_id.toString();
+  const accessToken = userData.access_token;
+  redisService.put(userIdKey(accessToken), userId);
+  return userData;
+}
+
 class AuthenticationService {
   requestMeliAccessToken(code) {
     return axios
@@ -20,7 +33,8 @@ class AuthenticationService {
         {},
         { headers: HEADERS }
       )
-      .then(response => response.data);
+      .then(response => response.data)
+      .then(saveUser);
   }
 
   refreshMeliToken(refreshToken) {
@@ -30,7 +44,12 @@ class AuthenticationService {
         {},
         { headers: HEADERS }
       )
-      .then(response => response.data);
+      .then(response => response.data)
+      .then(saveUser);
+  }
+
+  getUser(token) {
+    return redisService.get(userIdKey(token));
   }
 }
 
