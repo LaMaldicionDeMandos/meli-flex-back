@@ -10,7 +10,20 @@ const HEADERS = (headers = {}) => _.assign({
   Accept: "application/json",
 }, headers);
 
+const READY_TO_SHIP_STATUS = 'ready_to_ship';
+const SELF_SERVICE_DELIVERY_TYPE = 'self_service';
+
 class OrdersService {
+
+  /*
+    Estados de los envios flex
+    Todavia no imprimi la etiqueta  => 'ready_to_ship'
+    Imprimi la etiqueta             => 'ready_to_ship'
+    Escaneo el QR y acepto el viaje => 'shipped'
+    Avisó que está en viaje         => 'shipped'
+    Entregado                       => 'delivered'
+
+   */
 
   async getOrders(accessToken) {
     const userId = await authService.getUser(accessToken);
@@ -20,22 +33,30 @@ class OrdersService {
         { headers: HEADERS({Authorization: `Bearer ${accessToken}`}) }
       )
       .then(response => response.data.results)
+      .then(orders => _.filter(orders, (order) => order.shipping.id))
       .then(async orders => {
-        const allItemsMap = await this.#getItemsMap(accessToken, orders);
-        const populatedOrders = _.map(orders, async (order) => {
-          const shippingId = order.shipping.id;
-          if (shippingId) {
-            const shipping = await this.#getShipping(accessToken,shippingId);
-            order.shipping = shipping;
-          }
+        const ordersWithShipping = _.map(orders, async (order) => {
+          const shipping = await this.#getShipping(accessToken,order.shipping.id);
+          order.shipping = shipping;
+          return order;
+        });
+
+        const allOrders = await Promise.all(ordersWithShipping);
+        const filteredOrders = _.filter(allOrders, this.#isOrderReadyToShip);
+
+        const allItemsMap = await this.#getItemsMap(accessToken, filteredOrders);
+        _.each(filteredOrders, (order) => {
           _.each(order.order_items, (it) => {
             it.item.thumbnail = allItemsMap[it.item.id].thumbnail;
             it.item.permalink = allItemsMap[it.item.id].permalink;
-          })
-          return order;
+          });
         });
-        return Promise.all(populatedOrders);
+        return filteredOrders;
       });
+  }
+
+  #isOrderReadyToShip(order) {
+    return order.shipping.logistic_type === SELF_SERVICE_DELIVERY_TYPE && order.shipping.status === READY_TO_SHIP_STATUS;
   }
 
   #getShipping(accessToken, shippingId) {
