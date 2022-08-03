@@ -1,13 +1,13 @@
 const express = require('express');
+const authService = require('../services/authentication.service');
 const deliveryOrdersService = require('../services/deliveryOrders.service');
 
 const router = express.Router();
 
 router.post('/cost/calculation',
   (req, res, next) => {
-  const accessToken = req.get('Authorization');
   const deliveryOrder = req.body;
-  deliveryOrdersService.calculateCost(accessToken, deliveryOrder)
+  deliveryOrdersService.calculateCost(deliveryOrder)
     .then(cost => {
       console.log('Costo de envío: ' + cost);
       res.status(201).send({cost: cost});
@@ -16,5 +16,19 @@ router.post('/cost/calculation',
       res.sendStatus(500);
     });
 });
+
+router.post('/',
+  (req, res, next) => {
+    const accessToken = req.get('Authorization');
+    const deliveryOrder = req.body;
+    deliveryOrdersService.newDeliveryOrder(accessToken, deliveryOrder)
+      .then(order => {
+        console.log('Nueva Ordern de reparto: ' + JSON.stringify(order));
+        res.status(201).send(order);
+      })
+      .catch(e => {
+        res.sendStatus(500);
+      });
+  });
 
 module.exports = router;

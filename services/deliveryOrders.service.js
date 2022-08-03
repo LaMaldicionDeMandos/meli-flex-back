@@ -1,11 +1,16 @@
 const _ = require('lodash');
 
+const deliveryOrderRepo = require('../repository/delivery_order.repository');
+
+const userService = require('./user.service');
+
 const MIN_SHIPPING_COST = Number.parseFloat(process.env.MIN_SHIPPING_COST);
 const DELIVERY_DISCOUNT_FACTOR = Number.parseFloat(process.env.DELIVERY_DISCOUNT_FACTOR);
+const DELIVERY_FEE_FACTOR = Number.parseFloat(process.env.DELIVERY_FEE_FACTOR);
 const CABA_STATE_ID = 'AR-C';
 
 class DeliveryOrdersService {
-  async calculateCost(accessToken, deliveryOrder) {
+  async calculateCost(deliveryOrder) {
     const zoneGroups = _.chain(deliveryOrder.orders)
       .map((order) => order.shipping)
       .reduce(this.#addToGroup, {}).value();
@@ -19,6 +24,50 @@ class DeliveryOrdersService {
       })
       .reduce((sum, cost) => sum + cost, 0).value();
     return this.#applyDiscount(cost);
+  }
+
+  async newDeliveryOrder(accessToken, deliveryOrder) {
+    const user = await userService.getUser(accessToken);
+    const userAddress = _.find(await userService.getUserAddress(accessToken, user.id), (address) => {
+      return address.status === 'active' && _.some(address.types, (type) => type === 'default_selling_address');
+    });
+    const deliveryOrderDTO = {
+      name: deliveryOrder.name,
+      ownerId: user.id.toString(),
+      cost: await this.calculateCost(deliveryOrder),
+      deliveryPrice: await this.#calculateDeliveryPrice(deliveryOrder),
+      status: deliveryOrderRepo.PAID,
+      origin: {
+        address_line: userAddress.address_line,
+        floor: userAddress.floor,
+        apartment: userAddress.apartment,
+        zip_code: userAddress.zip_code,
+        city: userAddress.city,
+        state: userAddress.state,
+        country: userAddress.country,
+        latitude: userAddress.latitude,
+        longitude: userAddress.longitude
+      },
+      orders: _.map(deliveryOrder.orders, (order) => {
+        return {
+          id: order.id,
+          shippingId: order.shipping.id,
+          shippingStatus: order.shipping.status,
+          shippingAddress: order.shipping.receiver_address
+        };
+      })
+    };
+    return this.#populateDeliveryOrder(await deliveryOrderRepo.newDeliveryOrder(deliveryOrderDTO));
+  }
+
+  //TODO Tengo que pasarle las orders y el shipping creo
+  #populateDeliveryOrder(deliveryOrder) {
+    return deliveryOrder;
+  }
+
+  async #calculateDeliveryPrice(deliveryOrder) {
+    const cost = await this.calculateCost(deliveryOrder);
+    return cost * DELIVERY_FEE_FACTOR;
   }
 
   #getCity = (shipping) => {
