@@ -3,6 +3,7 @@ const _ = require('lodash');
 const deliveryOrderRepo = require('../repository/delivery_order.repository');
 
 const userService = require('./user.service');
+const paymentsService = require('./payments.service');
 
 const MIN_SHIPPING_COST = Number.parseFloat(process.env.MIN_SHIPPING_COST);
 const DELIVERY_DISCOUNT_FACTOR = Number.parseFloat(process.env.DELIVERY_DISCOUNT_FACTOR);
@@ -57,7 +58,8 @@ class DeliveryOrdersService {
         };
       })
     };
-    return this.#populateDeliveryOrder(await deliveryOrderRepo.newDeliveryOrder(deliveryOrderDTO));
+    const order = this.#populateDeliveryOrder(await deliveryOrderRepo.newDeliveryOrder(deliveryOrderDTO));
+    return paymentsService.pay(user, order);
   }
 
   //TODO Tengo que pasarle las orders y el shipping creo

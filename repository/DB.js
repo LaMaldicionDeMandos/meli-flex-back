@@ -19,7 +19,7 @@ const DeliveryOrderSchema = new Schema({
     ownerId: {type: String, index: true},
     cost: Number,
     deliveryPrice: Number,
-    status: {type: String, enum: ['paid'], index: true},
+    status: {type: String, enum: ['paid', 'pending'], index: true},
     orders: [{}],
     origin: {},
     location: {type: pointSchema, index: {type: '2dsphere', sparse: true}}

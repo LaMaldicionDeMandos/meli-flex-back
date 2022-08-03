@@ -18,6 +18,7 @@ class DeliveryOrderRepository {
     }
 
     get PAID() { return 'paid'; }
+    get PENDING() { return 'pending'; }
 }
 
 const repo = new DeliveryOrderRepository();
