@@ -2,13 +2,18 @@ const express = require('express');
 const router = express.Router();
 
 const paymentsService = require('../services/payments.service');
+const deliveryOrdersService = require('../services/deliveryOrders.service');
 
 router.post('/',  (req, res, next) => {
   const noti = req.body;
   console.log(`New notification -> ${JSON.stringify(noti)}`);
   if (req.body.type === 'payment') {
     console.log(`Hago el checkout: ${JSON.stringify(req.body)}`);
-    paymentsService.newPayment(req.body.data.id).catch(e => console.log(JSON.stringify(e)));
+    paymentsService.newPayment(req.body.data.id)
+      .then(deliveryOrderData => {
+        return deliveryOrdersService.paid(deliveryOrderData.id);
+      })
+      .catch(e => console.log(JSON.stringify(e)));
     //Hago el checkout
     //paymentService.mercadopagoCheckout(req.body.data.id, req.body.api_version);
   }

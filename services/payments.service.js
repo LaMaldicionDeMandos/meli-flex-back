@@ -4,7 +4,6 @@ const { v4: uuidv4 } = require('uuid');
 const mercadopago = require ('mercadopago');
 
 const redisService = require('./redis.service');
-const deliveryOrderService = require('./deliveryOrders.service');
 
 const paymentInfoRepo = require('../repository/payment_info.repository');
 
@@ -59,8 +58,8 @@ class PaymentsService {
         const payment = JSON.parse(await redisService.get(transactionData.external_reference));
         await paymentInfoRepo.newPaymentInfo(transactionData);
         const deliveryOrderData = _.first(payment.items);
-        deliveryOrderService.paid(deliveryOrderData.id);
         console.log(`Delivery Order recuperada de redis ${JSON.stringify(payment)}`);
+        return deliveryOrderData;
     }
 
     #transactionIsNotApproved(transactionData) {
