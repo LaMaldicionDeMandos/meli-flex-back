@@ -48,9 +48,9 @@ class PaymentsService {
           .data;
         console.log("Payment -> " + JSON.stringify(data));
         if (data.status === APPROVED_STATUS) {
-            this.#generateTransaction(data);
+            return this.#generateTransaction(data);
         } else {
-            this.#transactionIsNotApproved(data);
+            return this.#transactionIsNotApproved(data);
         }
     }
 
@@ -64,6 +64,7 @@ class PaymentsService {
 
     #transactionIsNotApproved(transactionData) {
         console.log(`Transaction ${transactionData.id} is in status ${transactionData.status}`);
+        return Promise.reject({message: `Pay status ${transactionData.status}`});
     }
 }
 
