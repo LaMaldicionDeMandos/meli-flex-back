@@ -25,7 +25,29 @@ const DeliveryOrderSchema = new Schema({
     location: {type: pointSchema, index: {type: '2dsphere', sparse: true}}
 }, {timestamps: true});
 
+const PaymentInfoSchema = new Schema( {
+    _id: String,
+    transaction_id: {type: String, index: true},
+    card: {},
+    currency_id: String,
+    date_approved: String,
+    description: String,
+    fee_details: [{}],
+    installments: Number,
+    operation_type: String,
+    payer: {},
+    payment_method_id: String,
+    payment_type_id: String,
+    platform_id: String,
+    point_of_interaction: {},
+    processing_mode: String,
+    taxes_amount: Number,
+    transaction_amount_refunded: Number,
+    transaction_details: {}
+}, {timestamps: true});
+
 const DeliveryOrder = mongoose.model('DeliveryOrder', DeliveryOrderSchema);
+const PaymentInfo = mongoose.model('PaymentInfo', PaymentInfoSchema);
 
 const db = new function() {
     mongoose.connect(process.env.MONGODB_URI);
@@ -33,6 +55,7 @@ const db = new function() {
     this.Schema = Schema;
     this.ObjectId = mongoose.Types.ObjectId;
     this.DeliveryOrder = DeliveryOrder;
+    this.PaymentInfo = PaymentInfo;
 };
 
 process.on('exit', function() {

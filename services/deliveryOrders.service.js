@@ -37,7 +37,7 @@ class DeliveryOrdersService {
       ownerId: user.id.toString(),
       cost: await this.calculateCost(deliveryOrder),
       deliveryPrice: await this.#calculateDeliveryPrice(deliveryOrder),
-      status: deliveryOrderRepo.PAID,
+      status: deliveryOrderRepo.PENDING,
       origin: {
         address_line: userAddress.address_line,
         floor: userAddress.floor,
