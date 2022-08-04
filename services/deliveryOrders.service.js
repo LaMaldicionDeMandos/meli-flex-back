@@ -62,6 +62,10 @@ class DeliveryOrdersService {
     return paymentsService.pay(user, order);
   }
 
+  paid(deliveryOrderId) {
+    return deliveryOrderRepo.changeStatusTo(deliveryOrderRepo.PAID, deliveryOrderId);
+  }
+
   //TODO Tengo que pasarle las orders y el shipping creo
   #populateDeliveryOrder(deliveryOrder) {
     return deliveryOrder;

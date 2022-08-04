@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 const mercadopago = require ('mercadopago');
 
 const redisService = require('./redis.service');
+const deliveryOrderService = require('./deliveryOrders.service');
 
 const paymentInfoRepo = require('../repository/payment_info.repository');
 
@@ -15,7 +16,6 @@ const MERCADOPAGO_API_URL = 'https://api.mercadopago.com/v1';
 const HEADERS = {
     'Authorization': `Bearer ${process.env.MELI_PAGO_ACCESS_TOKEN}`
 };
-const MELI_OWNER_ID = Number.parseInt(process.env.MELI_OWNER_ID);
 const APPROVED_STATUS = 'approved';
 const ONE_HOUR_IN_SECONDS = 60*60;
 
@@ -56,10 +56,11 @@ class PaymentsService {
     }
 
     async #generateTransaction(transactionData) {
-        const deliveryOrder = JSON.parse(await redisService.get(transactionData.external_reference));
+        const payment = JSON.parse(await redisService.get(transactionData.external_reference));
         await paymentInfoRepo.newPaymentInfo(transactionData);
-        //TODO Persistir la info de pago y marcar la orden como pagada
-        console.log(`Delivery Order recuperada de redis ${JSON.stringify(deliveryOrder)}`);
+        const deliveryOrderData = _.first(payment.items);
+        deliveryOrderService.paid(deliveryOrderData.id);
+        console.log(`Delivery Order recuperada de redis ${JSON.stringify(payment)}`);
     }
 
     #transactionIsNotApproved(transactionData) {

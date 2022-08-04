@@ -17,6 +17,10 @@ class DeliveryOrderRepository {
         return deliveryOrder.save();
     }
 
+    changeStatusTo(status, id) {
+        return db.DeliveryOrder.updateOne({_id: id}, {status: status});
+    }
+
     get PAID() { return 'paid'; }
     get PENDING() { return 'pending'; }
 }

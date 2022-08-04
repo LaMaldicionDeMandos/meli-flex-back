@@ -1,5 +1,6 @@
 const express = require('express');
-const authService = require('../services/authentication.service');
+const keepPropertiesAfter = require('./keepPropertiesAfter');
+
 const deliveryOrdersService = require('../services/deliveryOrders.service');
 
 const router = express.Router();
@@ -18,6 +19,7 @@ router.post('/cost/calculation',
 });
 
 router.post('/',
+  [keepPropertiesAfter('id')],
   (req, res, next) => {
     const accessToken = req.get('Authorization');
     const deliveryOrder = req.body;
