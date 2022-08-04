@@ -49,10 +49,21 @@ class PaymentsService {
           .data;
         console.log("Payment -> " + JSON.stringify(data));
         if (data.status === APPROVED_STATUS) {
-            //this.#generateTransaction(data);
+            this.#generateTransaction(data);
         } else {
-            //this.#transactionIsNotApproved(data);
+            this.#transactionIsNotApproved(data);
         }
+    }
+
+    async #generateTransaction(transactionData) {
+        const deliveryOrder = JSON.parse(await redisService.get(transactionData.external_reference));
+        await paymentInfoRepo.newPaymentInfo(transactionData);
+        //TODO Persistir la info de pago y marcar la orden como pagada
+        console.log(`Delivery Order recuperada de redis ${JSON.stringify(deliveryOrder)}`);
+    }
+
+    #transactionIsNotApproved(transactionData) {
+        console.log(`Transaction ${transactionData.id} is in status ${transactionData.status}`);
     }
 }
 

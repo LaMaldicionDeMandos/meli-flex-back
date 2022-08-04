@@ -6,14 +6,14 @@ const paymentsService = require('../services/payments.service');
 router.post('/',  (req, res, next) => {
   const noti = req.body;
   console.log(`New notification -> ${JSON.stringify(noti)}`);
-  res.status(201).send({ok: 'ok'});
   if (req.body.type === 'payment') {
     console.log(`Hago el checkout: ${JSON.stringify(req.body)}`);
     paymentsService.newPayment(req.body.data.id).catch(e => console.log(JSON.stringify(e)));
     //Hago el checkout
     //paymentService.mercadopagoCheckout(req.body.data.id, req.body.api_version);
-    // El collector_id de la creacion de la preferencias es el user_id del payment
   }
+  // El collector_id de la creacion de la preferencias es el user_id del payment
+  res.status(201).send({ok: 'ok'});
 });
 
 module.exports = router;
