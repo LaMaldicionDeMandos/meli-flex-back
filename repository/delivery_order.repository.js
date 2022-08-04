@@ -18,6 +18,7 @@ class DeliveryOrderRepository {
     }
 
     changeStatusTo(status, id) {
+        console.log(`Change status of ${id} to ${status}`);
         return db.DeliveryOrder.updateOne({_id: id}, {status: status});
     }
 
