@@ -19,7 +19,11 @@ class DeliveryOrderRepository {
 
     changeStatusToPaid(id, transactionId) {
         console.log(`Change status of ${id} to ${status} transaction id: ${transactionId}`);
-        return db.DeliveryOrder.updateOne({_id: id}, {status: this.PAID, transactionId: transactionId});
+        return db.DeliveryOrder.updateOne({_id: id}, {status: this.PAID, transactionId: transactionId})
+          .catch(e => {
+              console.error(JSON.stringify(e));
+              return Promise.reject(e);
+          });
     }
 
     getById(id) {
