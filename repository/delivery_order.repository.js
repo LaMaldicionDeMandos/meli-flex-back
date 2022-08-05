@@ -18,7 +18,7 @@ class DeliveryOrderRepository {
     }
 
     changeStatusToPaid(id, transactionId) {
-        console.log(`Change status of ${id} to ${status} transaction id: ${transactionId}`);
+        console.log(`Change status of ${id} to ${this.PAID} transaction id: ${transactionId}`);
         return db.DeliveryOrder.updateOne({_id: id}, {status: this.PAID, transactionId: transactionId})
           .catch(e => {
               console.error(JSON.stringify(e));
