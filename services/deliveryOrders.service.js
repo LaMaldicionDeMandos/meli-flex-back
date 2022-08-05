@@ -67,8 +67,10 @@ class DeliveryOrdersService {
   }
 
   async paid(deliveryOrderId, transactionId) {
+    console.log(`Marco delivery ${deliveryOrderId} como pagada, transaccion: ${transactionId}`);
     await deliveryOrderRepo.changeStatusToPaid(deliveryOrderId, transactionId);
     const deliveryOrder = await deliveryOrderRepo.getById(deliveryOrderId);
+    console.log(`Delivery Order: ${JSON.stringify(deliveryOrder)}`);
     this.#pushReadyDeliveryOrder(deliveryOrder);
     return deliveryOrder;
   }
