@@ -15,9 +15,8 @@ class RedisService {
     }
 
     put(k, v, exp) {
-        (exp)
-            ? this.#redisClient.set(k, v, REDIS_EXPIRATION, exp)
-            : this.#redisClient.set(k, v);
+        this.#redisClient.set(k, v);
+        if (exp) this.#redisClient.expire(k, exp);
     }
 
     get(k) {
