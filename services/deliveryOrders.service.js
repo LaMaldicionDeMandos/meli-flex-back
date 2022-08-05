@@ -68,7 +68,7 @@ class DeliveryOrdersService {
 
   async paid(deliveryOrderId, transactionId) {
     console.log(`Marco delivery ${deliveryOrderId} como pagada, transaccion: ${transactionId}`);
-    const result = await deliveryOrderRepo.changeStatusToPaid(deliveryOrderId, transactionId);
+    await deliveryOrderRepo.changeStatusToPaid(deliveryOrderId, transactionId);
     const deliveryOrder = await deliveryOrderRepo.getById(deliveryOrderId);
     console.log(`Delivery Order: ${JSON.stringify(deliveryOrder)}`);
     this.#pushReadyDeliveryOrder(deliveryOrder);
@@ -82,7 +82,7 @@ class DeliveryOrdersService {
 
   #pushReadyDeliveryOrder(deliveryOrder) {
     console.log(`order ${deliveryOrder._id} expire in ${deliveryOrder.expiration_minutes * 60} seconds`);
-    return redisService.put(READY_DELIVERY_ORDER_KEY + deliveryOrder._id, deliveryOrder, deliveryOrder.expiration_minutes * 60);
+    return redisService.put(READY_DELIVERY_ORDER_KEY + deliveryOrder._id, JSON.stringify(deliveryOrder), deliveryOrder.expiration_minutes * 60);
   }
 
   async #calculateDeliveryPrice(deliveryOrder) {
