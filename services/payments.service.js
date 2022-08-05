@@ -46,7 +46,7 @@ class PaymentsService {
         if (await paymentInfoRepo.existByTransactionId(paymentId)) return Promise.reject({message: 'payment_already_exist'});
         const data = (await axios.get(`${MERCADOPAGO_API_URL}/payments/${paymentId}`, { headers: HEADERS }))
           .data;
-        console.log("Payment -> " + JSON.stringify(data));
+        console.log("Payment -> ");
         if (data.status === APPROVED_STATUS) {
             return this.#generateTransaction(data);
         } else {

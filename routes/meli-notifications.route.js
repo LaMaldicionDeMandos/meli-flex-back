@@ -11,7 +11,7 @@ router.post('/',  (req, res, next) => {
     console.log(`Hago el checkout: ${JSON.stringify(req.body)}`);
     paymentsService.newPayment(req.body.data.id)
       .then(payInfo => {
-        return deliveryOrdersService.paid(payInfo.deliveryInfo.id, payInfo.transactionId);
+        return deliveryOrdersService.paid(payInfo.deliveryInfo.id, payInfo.transactionId.toString());
       })
       .catch(e => console.log(JSON.stringify(e)));
     //Hago el checkout
