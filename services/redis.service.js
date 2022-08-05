@@ -24,6 +24,12 @@ class RedisService {
         return this.#redisClient.get(k);
     }
 
+    // -1: not expire
+    // -2: not found
+    ttl(k) {
+        return this.#redisClient.ttl(k);
+    }
+
     async deleteKey(k) {
         console.log('Deleting key: ' + k);
         const deleted = await this.#redisClient.del(k);

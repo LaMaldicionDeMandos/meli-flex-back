@@ -33,4 +33,12 @@ router.post('/',
       });
   });
 
+//FORTEST
+router.get('/ttl/:id',
+  (req, res, next) => {
+    deliveryOrdersService.deliveryOrderTTL(req.params.id)
+      .then(ttl => res.send({ttl: ttl}))
+      .catch(e => res.send({message: `Error: ${e}`}));
+  });
+
 module.exports = router;

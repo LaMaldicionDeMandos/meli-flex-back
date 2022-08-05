@@ -12,14 +12,18 @@ class DeliveryOrderRepository {
         deliveryOrder.status = deliveryOrderDTO.status;
         deliveryOrder.orders = deliveryOrderDTO.orders;
         deliveryOrder.location = {type: 'Point', coordinates: [deliveryOrderDTO.origin.longitude, deliveryOrderDTO.origin.latitude]};
-        deliveryOrder.origin = deliveryOrder.origin;
-
+        deliveryOrder.origin = deliveryOrderDTO.origin;
+        deliveryOrder.expiration_minutes = deliveryOrderDTO.expiration_minutes;
         return deliveryOrder.save();
     }
 
-    changeStatusTo(status, id) {
-        console.log(`Change status of ${id} to ${status}`);
-        return db.DeliveryOrder.updateOne({_id: id}, {status: status});
+    changeStatusToPaid(id, transactionId) {
+        console.log(`Change status of ${id} to ${status} transaction id: ${transactionId}`);
+        return db.DeliveryOrder.updateOne({_id: id}, {status: this.PAID, transactionId: transactionId});
+    }
+
+    getById(id) {
+        return db.DeliveryOrder.findById(id);
     }
 
     get PAID() { return 'paid'; }

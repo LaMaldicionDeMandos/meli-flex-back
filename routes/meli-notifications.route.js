@@ -10,8 +10,8 @@ router.post('/',  (req, res, next) => {
   if (req.body.type === 'payment') {
     console.log(`Hago el checkout: ${JSON.stringify(req.body)}`);
     paymentsService.newPayment(req.body.data.id)
-      .then(deliveryOrderData => {
-        return deliveryOrdersService.paid(deliveryOrderData.id);
+      .then(payInfo => {
+        return deliveryOrdersService.paid(payInfo.deliveryInfo.id, payInfo.transactionId);
       })
       .catch(e => console.log(JSON.stringify(e)));
     //Hago el checkout

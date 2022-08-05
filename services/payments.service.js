@@ -59,7 +59,7 @@ class PaymentsService {
         await paymentInfoRepo.newPaymentInfo(transactionData);
         const deliveryOrderData = _.first(payment.items);
         console.log(`Delivery Order recuperada de redis ${JSON.stringify(payment)}`);
-        return deliveryOrderData;
+        return {deliveryInfo: deliveryOrderData, transactionId: transactionData.id};
     }
 
     #transactionIsNotApproved(transactionData) {

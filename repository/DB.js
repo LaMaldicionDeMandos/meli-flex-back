@@ -17,12 +17,14 @@ const DeliveryOrderSchema = new Schema({
     _id: String,
     name: String,
     ownerId: {type: String, index: true},
+    transactionId: {type: String, index: true},
     cost: Number,
     deliveryPrice: Number,
     status: {type: String, enum: ['paid', 'pending'], index: true},
     orders: [{}],
     origin: {},
-    location: {type: pointSchema, index: {type: '2dsphere', sparse: true}}
+    location: {type: pointSchema, index: {type: '2dsphere', sparse: true}},
+    expiration_minutes: Number,
 }, {timestamps: true});
 
 const PaymentInfoSchema = new Schema( {

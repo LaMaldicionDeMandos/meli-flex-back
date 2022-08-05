@@ -4,11 +4,14 @@ const deliveryOrderRepo = require('../repository/delivery_order.repository');
 
 const userService = require('./user.service');
 const paymentsService = require('./payments.service');
+const redisService = require('./redis.service');
 
 const MIN_SHIPPING_COST = Number.parseFloat(process.env.MIN_SHIPPING_COST);
 const DELIVERY_DISCOUNT_FACTOR = Number.parseFloat(process.env.DELIVERY_DISCOUNT_FACTOR);
 const DELIVERY_FEE_FACTOR = Number.parseFloat(process.env.DELIVERY_FEE_FACTOR);
 const CABA_STATE_ID = 'AR-C';
+
+const READY_DELIVERY_ORDER_KEY = 'ready_delivery_order';
 
 class DeliveryOrdersService {
   async calculateCost(deliveryOrder) {
@@ -38,6 +41,7 @@ class DeliveryOrdersService {
       cost: await this.calculateCost(deliveryOrder),
       deliveryPrice: await this.#calculateDeliveryPrice(deliveryOrder),
       status: deliveryOrderRepo.PENDING,
+      expiration_minutes: deliveryOrder.expiration_minutes,
       origin: {
         address_line: userAddress.address_line,
         floor: userAddress.floor,
@@ -62,13 +66,20 @@ class DeliveryOrdersService {
     return paymentsService.pay(user, order);
   }
 
-  paid(deliveryOrderId) {
-    return deliveryOrderRepo.changeStatusTo(deliveryOrderRepo.PAID, deliveryOrderId);
+  async paid(deliveryOrderId, transactionId) {
+    await deliveryOrderRepo.changeStatusToPaid(deliveryOrderId, transactionId);
+    const deliveryOrder = await deliveryOrderRepo.getById(deliveryOrderId);
+    this.#pushReadyDeliveryOrder(deliveryOrder);
+    return deliveryOrder;
   }
 
   //TODO Tengo que pasarle las orders y el shipping creo
   #populateDeliveryOrder(deliveryOrder) {
     return deliveryOrder;
+  }
+
+  #pushReadyDeliveryOrder(deliveryOrder) {
+    return redisService.put(READY_DELIVERY_ORDER_KEY + deliveryOrder._id, deliveryOrder, deliveryOrder.expiration_minutes * 60);
   }
 
   async #calculateDeliveryPrice(deliveryOrder) {
@@ -91,6 +102,11 @@ class DeliveryOrdersService {
 
   #applyDiscount(cost) {
     return cost * DELIVERY_DISCOUNT_FACTOR;
+  }
+
+  //TEST FUNCTIONS
+  deliveryOrderTTL(id) {
+    return redisService.ttl(READY_DELIVERY_ORDER_KEY + id);
   }
 }
 
