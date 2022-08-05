@@ -79,6 +79,7 @@ class DeliveryOrdersService {
   }
 
   #pushReadyDeliveryOrder(deliveryOrder) {
+    console.log(`order ${deliveryOrder._id} expire in ${deliveryOrder.expiration_minutes * 60} seconds`);
     return redisService.put(READY_DELIVERY_ORDER_KEY + deliveryOrder._id, deliveryOrder, deliveryOrder.expiration_minutes * 60);
   }
 
