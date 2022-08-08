@@ -18,6 +18,7 @@ const READY_DELIVERY_ORDER_KEY = 'ready_delivery_order';
 class DeliveryOrdersService {
 
   constructor() {
+    console.log('Init service, verifing expired orders');
     this.#verifyAllDeliveryOrderExpirations();
   }
   async calculateCost(deliveryOrder) {
@@ -86,10 +87,10 @@ class DeliveryOrdersService {
     return deliveryOrder;
   }
 
-  #pushReadyDeliveryOrder(deliveryOrder) {
+  async #pushReadyDeliveryOrder(deliveryOrder) {
     console.log(`order ${deliveryOrder._id} expire in ${deliveryOrder.expiration_minutes * ONE_MINUTES_IN_SECONDS} seconds`);
     const key = this.#createReadyDeliveryOrderKey(deliveryOrder._id);
-    const r = redisService.put(key, JSON.stringify(deliveryOrder), deliveryOrder.expiration_minutes * ONE_MINUTES_IN_SECONDS);
+    await redisService.put(key, JSON.stringify(deliveryOrder), deliveryOrder.expiration_minutes * ONE_MINUTES_IN_SECONDS);
     this.#verifyDeliveryOrderExpiration(deliveryOrder._id);
     return r;
   }
@@ -107,6 +108,7 @@ class DeliveryOrdersService {
     const key = this.#createReadyDeliveryOrderKey(deliveryOderId);
     const ttl = redisService.ttl(key);
     if (ttl === redisService.EXPIRED) {
+      console.log('Order expired ' + deliveryOderId);
       this.#expireDeliveryOrder(deliveryOderId);
     } else {
       setTimeout(() => {
