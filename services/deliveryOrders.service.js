@@ -107,11 +107,13 @@ class DeliveryOrdersService {
   #verifyDeliveryOrderExpiration = (deliveryOderId) => {
     const key = this.#createReadyDeliveryOrderKey(deliveryOderId);
     const ttl = redisService.ttl(key);
+    console.log(`Order expire in ${ttl} seconds setting timeout`);
     if (ttl === redisService.EXPIRED) {
       console.log('Order expired ' + deliveryOderId);
       this.#expireDeliveryOrder(deliveryOderId);
-    } else {
+    } else if (ttl !== redisService.NOT_EXPIRE){
       setTimeout(() => {
+        console.log(`Timeout of delivery order ${deliveryOderId}`);
         this.#expireDeliveryOrder(deliveryOderId);
       }, ttl * ONE_SECOND_IN_MILLIS);
     }

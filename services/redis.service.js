@@ -6,6 +6,11 @@ class RedisService {
     get EXPIRED() {
         return -2;
     }
+
+    get NOT_EXPIRE() {
+        return -1;
+    }
+
     constructor() {
         this.#redisClient = redis.createClient(CONF);
         this.#connect();
