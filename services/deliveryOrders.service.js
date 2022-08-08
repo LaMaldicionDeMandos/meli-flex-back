@@ -121,10 +121,11 @@ class DeliveryOrdersService {
 
   async #expireDeliveryOrder(deliveryOrderId) {
     const deliveryOrder = await deliveryOrderRepo.getById(deliveryOrderId);
-    deliveryOrderRepo.changeStatusToExpired(deliveryOrderId);
-    const transactionId = deliveryOrder.transactionId;
-    paymentsService.refund(transactionId);
-    //TODO do expiration proccess, OJO! tengo que verificar que la orden no fue tomada (o sea, sigue en estado PAID)
+    if (deliveryOrder.status === deliveryOrderRepo.PAID) {
+      deliveryOrderRepo.changeStatusToExpired(deliveryOrderId);
+      const transactionId = deliveryOrder.transactionId;
+      paymentsService.refund(transactionId);
+    }
   }
 
   async #calculateDeliveryPrice(deliveryOrder) {

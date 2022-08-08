@@ -76,7 +76,8 @@ class PaymentsService {
             { headers: HEADERS }
           )
           .then(response => response.data)
-          .then((data) => console.log('Refund response ' + JSON.stringify(data)));
+          .then((data) => console.log('Refund response ' + JSON.stringify(data)))
+          .catch((e) => console.error(JSON.stringify(e)));
     }
 }
 
