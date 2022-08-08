@@ -104,9 +104,9 @@ class DeliveryOrdersService {
     _.each(ids, this.#verifyDeliveryOrderExpiration);
   }
 
-  #verifyDeliveryOrderExpiration = (deliveryOderId) => {
+  #verifyDeliveryOrderExpiration = async (deliveryOderId) => {
     const key = this.#createReadyDeliveryOrderKey(deliveryOderId);
-    const ttl = redisService.ttl(key);
+    const ttl = await redisService.ttl(key);
     console.log(`Order expire in ${ttl} seconds setting timeout`);
     if (ttl === redisService.EXPIRED) {
       console.log('Order expired ' + deliveryOderId);
