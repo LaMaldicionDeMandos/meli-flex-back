@@ -13,7 +13,8 @@ mercadopago.configure({
 
 const MERCADOPAGO_API_URL = 'https://api.mercadopago.com/v1';
 const HEADERS = {
-    'Authorization': `Bearer ${process.env.MELI_PAGO_ACCESS_TOKEN}`
+    'Authorization': `Bearer ${process.env.MELI_PAGO_ACCESS_TOKEN}`,
+    'Content-Type': 'application/json'
 };
 const APPROVED_STATUS = 'approved';
 const ONE_HOUR_IN_SECONDS = 60*60;
@@ -65,6 +66,17 @@ class PaymentsService {
     #transactionIsNotApproved(transactionData) {
         console.log(`Transaction ${transactionData.id} is in status ${transactionData.status}`);
         return Promise.reject({message: `Pay status ${transactionData.status}`});
+    }
+
+    refund(transactionId) {
+        return axios
+          .post(
+            `${MERCADOPAGO_API_URL}/payments/${transactionId}/refunds`,
+            {},
+            { headers: HEADERS }
+          )
+          .then(response => response.data)
+          .then((data) => console.log('Refund response ' + JSON.stringify(data)));
     }
 }
 

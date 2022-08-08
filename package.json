@@ -29,7 +29,7 @@
     "number-formatter": "^1.2.0",
     "passport": "^0.5.0",
     "passport-local": "^1.0.0",
-    "redis": "^4.0.0",
+    "redis": "^4.2.0",
     "sha256": "^0.2.0",
     "ttl-mem-cache": "^4.1.0",
     "uuid": "^8.3.2"

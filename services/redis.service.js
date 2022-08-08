@@ -1,17 +1,14 @@
 const redis = require('redis');
-
-const REDIS_EXPIRATION = 'EX';
-
+const CONF = {url: process.env.REDIS_URL};
 class RedisService {
     #redisClient = null;
+
+    get EXPIRED() {
+        return -2;
+    }
     constructor() {
-        this.#redisClient = redis.createClient({url: process.env.REDIS_URL});
-        this.#redisClient.connect();
-        this.#redisClient.on('error', (err) => {
-            console.log('Redis Client Error', JSON.stringify(err));
-            this.#redisClient.connect()
-                .catch(e => console.log(`Redis client error on connect ${JSON.stringify(e)}`));
-        });
+        this.#redisClient = redis.createClient(CONF);
+        this.#connect();
     }
 
     put(k, v, exp) {
@@ -34,6 +31,15 @@ class RedisService {
         const deleted = await this.#redisClient.del(k);
         console.log('key deleted ', deleted);
         return deleted;
+    }
+
+    #connect = () => {
+        this.#redisClient.connect();
+        this.#redisClient.on('error', (err) => {
+            console.log('Redis Client Error', JSON.stringify(err));
+            this.#redisClient.connect()
+              .catch(e => console.log(`Redis client error on connect ${JSON.stringify(e)}`));
+        });
     }
 }
 

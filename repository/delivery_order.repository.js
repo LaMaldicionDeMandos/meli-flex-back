@@ -26,8 +26,21 @@ class DeliveryOrderRepository {
           });
     }
 
+    changeStatusToExpired(id) {
+        console.log(`Change status of ${id} to ${this.PENDING}`);
+        return db.DeliveryOrder.updateOne({_id: id}, {status: this.PENDING})
+          .catch(e => {
+              console.error(JSON.stringify(e));
+              return Promise.reject(e);
+          });
+    }
+
     getById(id) {
         return db.DeliveryOrder.findById(id);
+    }
+
+    findAllIdsOfStatus(status) {
+        return db.DeliveryOrder.find({status: status}).select({_id: 0});
     }
 
     get PAID() { return 'paid'; }

@@ -10,10 +10,16 @@ const MIN_SHIPPING_COST = Number.parseFloat(process.env.MIN_SHIPPING_COST);
 const DELIVERY_DISCOUNT_FACTOR = Number.parseFloat(process.env.DELIVERY_DISCOUNT_FACTOR);
 const DELIVERY_FEE_FACTOR = Number.parseFloat(process.env.DELIVERY_FEE_FACTOR);
 const CABA_STATE_ID = 'AR-C';
+const ONE_MINUTES_IN_SECONDS = 60;
+const ONE_SECOND_IN_MILLIS = 1000;
 
 const READY_DELIVERY_ORDER_KEY = 'ready_delivery_order';
 
 class DeliveryOrdersService {
+
+  constructor() {
+    this.#verifyAllDeliveryOrderExpirations();
+  }
   async calculateCost(deliveryOrder) {
     const zoneGroups = _.chain(deliveryOrder.orders)
       .map((order) => order.shipping)
@@ -81,8 +87,40 @@ class DeliveryOrdersService {
   }
 
   #pushReadyDeliveryOrder(deliveryOrder) {
-    console.log(`order ${deliveryOrder._id} expire in ${deliveryOrder.expiration_minutes * 60} seconds`);
-    return redisService.put(READY_DELIVERY_ORDER_KEY + deliveryOrder._id, JSON.stringify(deliveryOrder), deliveryOrder.expiration_minutes * 60);
+    console.log(`order ${deliveryOrder._id} expire in ${deliveryOrder.expiration_minutes * ONE_MINUTES_IN_SECONDS} seconds`);
+    const key = this.#createReadyDeliveryOrderKey(deliveryOrder._id);
+    const r = redisService.put(key, JSON.stringify(deliveryOrder), deliveryOrder.expiration_minutes * ONE_MINUTES_IN_SECONDS);
+    this.#verifyDeliveryOrderExpiration(deliveryOrder._id);
+    return r;
+  }
+
+  #createReadyDeliveryOrderKey(deliveryOrderId) {
+    return READY_DELIVERY_ORDER_KEY + deliveryOrderId;
+  }
+
+  async #verifyAllDeliveryOrderExpirations() {
+    const ids = await deliveryOrderRepo.findAllIdsOfStatus(deliveryOrderRepo.PAID);
+    _.each(ids, this.#verifyDeliveryOrderExpiration);
+  }
+
+  #verifyDeliveryOrderExpiration = (deliveryOderId) => {
+    const key = this.#createReadyDeliveryOrderKey(deliveryOderId);
+    const ttl = redisService.ttl(key);
+    if (ttl === redisService.EXPIRED) {
+      this.#expireDeliveryOrder(deliveryOderId);
+    } else {
+      setTimeout(() => {
+        this.#expireDeliveryOrder(deliveryOderId);
+      }, ttl * ONE_SECOND_IN_MILLIS);
+    }
+  }
+
+  async #expireDeliveryOrder(deliveryOrderId) {
+    const deliveryOrder = await deliveryOrderRepo.getById(deliveryOrderId);
+    deliveryOrderRepo.changeStatusToExpired(deliveryOrderId);
+    const transactionId = deliveryOrder.transactionId;
+    paymentsService.refund(transactionId);
+    //TODO do expiration proccess, OJO! tengo que verificar que la orden no fue tomada (o sea, sigue en estado PAID)
   }
 
   async #calculateDeliveryPrice(deliveryOrder) {
