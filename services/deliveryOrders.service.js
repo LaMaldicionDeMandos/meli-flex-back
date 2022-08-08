@@ -90,7 +90,7 @@ class DeliveryOrdersService {
   async #pushReadyDeliveryOrder(deliveryOrder) {
     console.log(`order ${deliveryOrder._id} expire in ${deliveryOrder.expiration_minutes * ONE_MINUTES_IN_SECONDS} seconds`);
     const key = this.#createReadyDeliveryOrderKey(deliveryOrder._id);
-    await redisService.put(key, JSON.stringify(deliveryOrder), deliveryOrder.expiration_minutes * ONE_MINUTES_IN_SECONDS);
+    const r = await redisService.put(key, JSON.stringify(deliveryOrder), deliveryOrder.expiration_minutes * ONE_MINUTES_IN_SECONDS);
     this.#verifyDeliveryOrderExpiration(deliveryOrder._id);
     return r;
   }
