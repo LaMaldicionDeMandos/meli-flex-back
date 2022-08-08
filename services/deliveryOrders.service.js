@@ -15,6 +15,8 @@ const ONE_SECOND_IN_MILLIS = 1000;
 
 const READY_DELIVERY_ORDER_KEY = 'ready_delivery_order';
 
+const DEFAULT_REFUND_REASON = 'Tiempo limite de espera expirado';
+
 class DeliveryOrdersService {
 
   constructor() {
@@ -124,7 +126,11 @@ class DeliveryOrdersService {
     if (deliveryOrder.status === deliveryOrderRepo.PAID) {
       deliveryOrderRepo.changeStatusToExpired(deliveryOrderId);
       const transactionId = deliveryOrder.transactionId;
-      paymentsService.refund(transactionId);
+      const response = await paymentsService.refund(transactionId, DEFAULT_REFUND_REASON);
+      if (response.status === paymentsService.APPROVED_STATUS) {
+        //TODO refund ok se puede avisar al vendedor
+      }
+      console.log('Refund ' + response.status);
     }
   }
 

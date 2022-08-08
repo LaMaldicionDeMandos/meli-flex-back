@@ -16,10 +16,14 @@ const HEADERS = {
     'Authorization': `Bearer ${process.env.MELI_PAGO_ACCESS_TOKEN}`,
     'Content-Type': 'application/json'
 };
-const APPROVED_STATUS = 'approved';
 const ONE_HOUR_IN_SECONDS = 60*60;
 
 class PaymentsService {
+
+    get APPROVED_STATUS() {
+        return 'approved';
+    }
+
     pay(user, order) {
         const payer = {
             name: user.first_name,
@@ -48,7 +52,7 @@ class PaymentsService {
         const data = (await axios.get(`${MERCADOPAGO_API_URL}/payments/${paymentId}`, { headers: HEADERS }))
           .data;
         console.log("Payment -> ");
-        if (data.status === APPROVED_STATUS) {
+        if (data.status === this.APPROVED_STATUS) {
             return this.#generateTransaction(data);
         } else {
             return this.#transactionIsNotApproved(data);
@@ -68,11 +72,11 @@ class PaymentsService {
         return Promise.reject({message: `Pay status ${transactionData.status}`});
     }
 
-    refund(transactionId) {
+    refund(transactionId, reason) {
         return axios
           .post(
             `${MERCADOPAGO_API_URL}/payments/${transactionId}/refunds`,
-            {},
+            {reason: reason},
             { headers: HEADERS }
           )
           .then(response => response.data)
