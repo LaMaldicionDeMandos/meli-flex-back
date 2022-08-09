@@ -25,8 +25,7 @@ class OrdersService {
 
    */
 
-  async getOrders(accessToken) {
-    const userId = await authService.getUser(accessToken);
+  async getOrders(userId, accessToken) {
     return axios
       .get(
         `${MELI_URL}/orders/search?seller=${userId}&sort=date_desc`,
@@ -52,6 +51,25 @@ class OrdersService {
           });
         });
         return filteredOrders;
+      });
+  }
+
+  orderPopulated(orderId, accessToken) {
+    return axios
+      .get(
+        `${MELI_URL}/orders/${orderId}`,
+        { headers: HEADERS({Authorization: `Bearer ${accessToken}`}) }
+      )
+      .then(response => response.data)
+      .then(async order => {
+        const shipping = await this.#getShipping(accessToken,order.shipping.id);
+        order.shipping = shipping;
+        const allItemsMap = await this.#getItemsMap(accessToken, [order]);
+        _.each(order.order_items, (it) => {
+          it.item.thumbnail = allItemsMap[it.item.id].thumbnail;
+          it.item.permalink = allItemsMap[it.item.id].permalink;
+        });
+        return order;
       });
   }
 

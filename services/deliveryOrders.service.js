@@ -4,6 +4,7 @@ const deliveryOrderRepo = require('../repository/delivery_order.repository');
 
 const userService = require('./user.service');
 const paymentsService = require('./payments.service');
+const ordersService = require('./orders.service');
 const redisService = require('./redis.service');
 
 const MIN_SHIPPING_COST = Number.parseFloat(process.env.MIN_SHIPPING_COST);
@@ -71,7 +72,7 @@ class DeliveryOrdersService {
         };
       })
     };
-    const order = this.#populateDeliveryOrder(await deliveryOrderRepo.newDeliveryOrder(deliveryOrderDTO));
+    const order = await deliveryOrderRepo.newDeliveryOrder(deliveryOrderDTO);
     return paymentsService.pay(user, order);
   }
 
@@ -84,9 +85,23 @@ class DeliveryOrdersService {
     return deliveryOrder;
   }
 
-  //TODO Tengo que pasarle las orders y el shipping creo
-  #populateDeliveryOrder(deliveryOrder) {
-    return deliveryOrder;
+  findAll(ownerId, accessToken) {
+    return deliveryOrderRepo.findAllByOwner(ownerId)
+      .then(orders => Promise.all(_.map(orders, order => this.#populateDeliveryOrder(order, accessToken))));
+  }
+
+  async #populateDeliveryOrder(deliveryOrder, accessToken) {
+    const promises = _.chain(deliveryOrder.orders)
+      .map((order) => order.id)
+      .map((id) => ordersService.orderPopulated(id, accessToken))
+      .value();
+    const populatedOrder = await Promise.all(promises).then(orders => {
+      deliveryOrder.orders = orders;
+      return deliveryOrder;
+    });
+    const ttl = await this.#deliveryOrderTTL(populatedOrder.id);
+    populatedOrder.ttl = ttl;
+    return populatedOrder;
   }
 
   async #pushReadyDeliveryOrder(deliveryOrder) {
@@ -157,7 +172,7 @@ class DeliveryOrdersService {
   }
 
   //TEST FUNCTIONS
-  deliveryOrderTTL(id) {
+  #deliveryOrderTTL(id) {
     return redisService.ttl(READY_DELIVERY_ORDER_KEY + id);
   }
 }

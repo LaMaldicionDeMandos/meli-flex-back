@@ -2,6 +2,7 @@ const express = require('express');
 const keepPropertiesAfter = require('./keepPropertiesAfter');
 
 const deliveryOrdersService = require('../services/deliveryOrders.service');
+const userService = require('../services/user.service');
 
 const router = express.Router();
 
@@ -33,12 +34,18 @@ router.post('/',
       });
   });
 
-//FORTEST
-router.get('/ttl/:id',
-  (req, res, next) => {
-    deliveryOrdersService.deliveryOrderTTL(req.params.id)
-      .then(ttl => res.send({ttl: ttl}))
-      .catch(e => res.send({message: `Error: ${e}`}));
+router.get('/',
+  [keepPropertiesAfter('_id,name,orders,ownerId,cost,status,ttl')],
+  async (req, res, next) => {
+    const accessToken = req.get('Authorization');
+    const user = await userService.getUser(accessToken);
+    deliveryOrdersService.findAll(user.id, accessToken)
+      .then(deliveryOrders => {
+        res.status(200).send(deliveryOrders);
+      })
+      .catch(e => {
+        res.sendStatus(500);
+      });
   });
 
 module.exports = router;
