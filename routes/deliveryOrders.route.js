@@ -1,10 +1,19 @@
 const express = require('express');
+const { check, validationResult } = require('express-validator');
 const keepPropertiesAfter = require('./keepPropertiesAfter');
 
 const deliveryOrdersService = require('../services/deliveryOrders.service');
 const userService = require('../services/user.service');
 
 const router = express.Router();
+
+errorMiddleware = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() })
+  }
+  next();
+};
 
 router.post('/cost/calculation',
   (req, res, next) => {
@@ -35,11 +44,16 @@ router.post('/',
   });
 
 router.get('/',
+  [
+    check('status').optional(),
+    errorMiddleware
+  ],
   [keepPropertiesAfter('_id,name,orders,ownerId,cost,status,ttl')],
   async (req, res, next) => {
     const accessToken = req.get('Authorization');
+    const filter = req.query.status ? {status: req.query.status} : {};
     const user = await userService.getUser(accessToken);
-    deliveryOrdersService.findAll(user.id, accessToken)
+    deliveryOrdersService.findAll(user.id, accessToken, filter)
       .then(deliveryOrders => {
         res.status(200).send(deliveryOrders);
       })

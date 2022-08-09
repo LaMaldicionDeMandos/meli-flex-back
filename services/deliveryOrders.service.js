@@ -85,8 +85,9 @@ class DeliveryOrdersService {
     return deliveryOrder;
   }
 
-  findAll(ownerId, accessToken) {
-    return deliveryOrderRepo.findAllByOwner(ownerId)
+  findAll(ownerId, accessToken, filter = {}) {
+    filter = this.#createFilterByClient(filter);
+    return deliveryOrderRepo.findAllByOwner(ownerId, filter)
       .then(orders => Promise.all(_.map(orders, order => this.#populateDeliveryOrder(order, accessToken))));
   }
 
@@ -102,6 +103,22 @@ class DeliveryOrdersService {
     const ttl = await this.#deliveryOrderTTL(populatedOrder.id);
     populatedOrder.ttl = ttl;
     return populatedOrder;
+  }
+
+  #createFilterByClient(filter) {
+    if (filter?.status) {
+      filter = this.#addStatusToFilter(filter);
+    }
+    return filter;
+  }
+
+  #addStatusToFilter(filter) {
+    if (filter.status === 'searching') {
+      filter = _.assign(filter, {'$or': [{status: deliveryOrderRepo.PENDING}, {status: deliveryOrderRepo.PAID}]});
+      _.unset(filter, 'status');
+      return filter;
+    }
+    return filter;
   }
 
   async #pushReadyDeliveryOrder(deliveryOrder) {

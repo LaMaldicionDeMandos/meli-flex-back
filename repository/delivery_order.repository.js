@@ -43,8 +43,8 @@ class DeliveryOrderRepository {
         return db.DeliveryOrder.find({status: status}).select({_id: 0});
     }
 
-    findAllByOwner(ownerId) {
-        return db.DeliveryOrder.find({ownerId: ownerId});
+    findAllByOwner(ownerId, filter) {
+        return db.DeliveryOrder.find(_.assign(filter,{ownerId: ownerId}));
     }
 
     get PAID() { return 'paid'; }
