@@ -76,6 +76,14 @@ class DeliveryOrdersService {
     return paymentsService.pay(user, order);
   }
 
+  async activeDeliveryOrder(accessToken, deliveryOrderId, delta) {
+    const query = _.pick(delta, ['expiration_minutes']);
+    const user = await userService.getUser(accessToken);
+    await deliveryOrderRepo.updateById(deliveryOrderId, query);
+    const order = await deliveryOrderRepo.getById(deliveryOrderId);
+    return paymentsService.pay(user, order);
+  }
+
   async paid(deliveryOrderId, transactionId) {
     console.log(`Marco delivery ${deliveryOrderId} como pagada, transaccion: ${transactionId}`);
     await deliveryOrderRepo.changeStatusToPaid(deliveryOrderId, transactionId);
@@ -89,6 +97,10 @@ class DeliveryOrdersService {
     filter = this.#createFilterByClient(filter);
     return deliveryOrderRepo.findAllByOwner(ownerId, filter)
       .then(orders => Promise.all(_.map(orders, order => this.#populateDeliveryOrder(order, accessToken))));
+  }
+
+  getDeliveryOrderStatus(ownerId, orderId) {
+    return deliveryOrderRepo.getStatus(ownerId, orderId);
   }
 
   async #populateDeliveryOrder(deliveryOrder, accessToken) {

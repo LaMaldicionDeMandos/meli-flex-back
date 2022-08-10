@@ -43,6 +43,21 @@ router.post('/',
       });
   });
 
+router.post('/:id/activation',
+  [keepPropertiesAfter('id')],
+  (req, res, next) => {
+    const accessToken = req.get('Authorization');
+    const delta = req.body;
+    deliveryOrdersService.activeDeliveryOrder(accessToken, req.params.id, delta)
+      .then(order => {
+        console.log('Orden de reparto reactivada: ' + JSON.stringify(order));
+        res.status(201).send(order);
+      })
+      .catch(e => {
+        res.sendStatus(500);
+      });
+  });
+
 router.get('/',
   [
     check('status').optional(),
@@ -56,6 +71,19 @@ router.get('/',
     deliveryOrdersService.findAll(user.id, accessToken, filter)
       .then(deliveryOrders => {
         res.status(200).send(deliveryOrders);
+      })
+      .catch(e => {
+        res.sendStatus(500);
+      });
+  });
+
+router.get('/:id/status',
+  async (req, res, next) => {
+    const accessToken = req.get('Authorization');
+    const user = await userService.getUser(accessToken);
+    deliveryOrdersService.getDeliveryOrderStatus(user.id, req.params.id)
+      .then(status => {
+        res.status(200).send(status);
       })
       .catch(e => {
         res.sendStatus(500);

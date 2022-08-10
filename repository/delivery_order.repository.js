@@ -39,12 +39,24 @@ class DeliveryOrderRepository {
         return db.DeliveryOrder.findById(id);
     }
 
+    updateById(id, delta){
+    return db.DeliveryOrder.updateOne({_id: id}, delta)
+      .catch(e => {
+          console.error(JSON.stringify(e));
+          return Promise.reject(e);
+      });
+    }
+
     findAllIdsOfStatus(status) {
         return db.DeliveryOrder.find({status: status}).select({_id: 0});
     }
 
     findAllByOwner(ownerId, filter) {
         return db.DeliveryOrder.find(_.assign(filter,{ownerId: ownerId}));
+    }
+
+    getStatus(ownerId, id) {
+      return db.DeliveryOrder.findOne({ownerId: ownerId, _id: id}).select({status: 1, _id: 0});
     }
 
     get PAID() { return 'paid'; }
