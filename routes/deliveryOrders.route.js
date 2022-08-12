@@ -90,4 +90,17 @@ router.get('/:id/status',
       });
   });
 
+router.delete('/:id',
+  async (req, res, next) => {
+    const accessToken = req.get('Authorization');
+    const user = await userService.getUser(accessToken);
+    deliveryOrdersService.deleteDeliveryOrder(user.id, req.params.id)
+      .then(status => {
+        res.status(200).send(status);
+      })
+      .catch(e => {
+        res.sendStatus(500);
+      });
+  });
+
 module.exports = router;

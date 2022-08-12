@@ -49,7 +49,7 @@ class DeliveryOrdersService {
       name: deliveryOrder.name,
       ownerId: user.id.toString(),
       cost: await this.calculateCost(deliveryOrder),
-      deliveryPrice: await this.#calculateDeliveryPrice(deliveryOrder),
+      //deliveryPrice: await this.#calculateDeliveryPrice(deliveryOrder), // Se calcula con lo que me paga meli
       status: deliveryOrderRepo.PENDING,
       expiration_minutes: deliveryOrder.expiration_minutes,
       origin: {
@@ -84,10 +84,13 @@ class DeliveryOrdersService {
     return paymentsService.pay(user, order);
   }
 
-  async paid(deliveryOrderId, transactionId) {
+  async paid(deliveryOrderId, payInfo) {
+    const transactionId = payInfo.transactionId.toString();
+    const deliveryPrice = this.#calculateDeliveryPrice(payInfo);
     console.log(`Marco delivery ${deliveryOrderId} como pagada, transaccion: ${transactionId}`);
     await deliveryOrderRepo.changeStatusToPaid(deliveryOrderId, transactionId);
     const deliveryOrder = await deliveryOrderRepo.getById(deliveryOrderId);
+    await deliveryOrderRepo.updateById(deliveryOrderId, {deliveryPrice: deliveryPrice});
     console.log(`Delivery Order: ${JSON.stringify(deliveryOrder)}`);
     this.#pushReadyDeliveryOrder(deliveryOrder);
     return deliveryOrder;
@@ -101,6 +104,14 @@ class DeliveryOrdersService {
 
   getDeliveryOrderStatus(ownerId, orderId) {
     return deliveryOrderRepo.getStatus(ownerId, orderId);
+  }
+
+  async deleteDeliveryOrder(ownerId, orderId) {
+    const status = await this.getDeliveryOrderStatus(ownerId, orderId);
+    if (status.status === deliveryOrderRepo.PENDING) {
+      await deliveryOrderRepo.deleteDeliveryOrder(orderId);
+      return {ok: 'ok'};
+    } else return {ok: 'error'};
   }
 
   async #populateDeliveryOrder(deliveryOrder, accessToken) {
@@ -178,8 +189,8 @@ class DeliveryOrdersService {
     }
   }
 
-  async #calculateDeliveryPrice(deliveryOrder) {
-    const cost = await this.calculateCost(deliveryOrder);
+  async #calculateDeliveryPrice(payInfo) {
+    const cost = payInfo.transaction_details.net_received_amount;
     return cost * DELIVERY_FEE_FACTOR;
   }
 

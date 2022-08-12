@@ -59,6 +59,10 @@ class DeliveryOrderRepository {
       return db.DeliveryOrder.findOne({ownerId: ownerId, _id: id}).select({status: 1, _id: 0});
     }
 
+    deleteDeliveryOrder(id) {
+      return db.DeliveryOrder.deleteOne({_id: id});
+    }
+
     get PAID() { return 'paid'; }
     get PENDING() { return 'pending'; }
 }
