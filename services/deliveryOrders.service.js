@@ -190,6 +190,7 @@ class DeliveryOrdersService {
   }
 
   async #calculateDeliveryPrice(payInfo) {
+    console.log('Pay transaction details ' + JSON.stringify(payInfo.transaction_details));
     const cost = payInfo.transaction_details.net_received_amount;
     return cost * DELIVERY_FEE_FACTOR;
   }
