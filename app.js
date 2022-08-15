@@ -7,6 +7,7 @@ var logger = require('morgan');
 
 const sessionRouter = require('./routes/session.route');
 const meliNotificationsRouter = require('./routes/meli-notifications.route');
+const meliLoginRouter = require('./routes/meli-login.route');
 const ordersRouter = require('./routes/orders.route');
 const deliveryOrdersRouter = require('./routes/deliveryOrders.route');
 
@@ -34,6 +35,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/session', sessionRouter);
 app.use('/meli/notifications', meliNotificationsRouter);
+app.use('/meli/login', meliLoginRouter);
 app.use('/orders', ordersRouter);
 app.use('/delivery', deliveryOrdersRouter);
 
