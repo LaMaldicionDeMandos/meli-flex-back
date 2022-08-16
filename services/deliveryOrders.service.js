@@ -96,10 +96,15 @@ class DeliveryOrdersService {
     return deliveryOrder;
   }
 
-  findAll(ownerId, accessToken, filter = {}) {
+  findAllByOwner(ownerId, accessToken, filter = {}) {
     filter = this.#createFilterByClient(filter);
     return deliveryOrderRepo.findAllByOwner(ownerId, filter)
       .then(orders => Promise.all(_.map(orders, order => this.#populateDeliveryOrder(order, accessToken))));
+  }
+
+  findAll(filter = {}) {
+    filter = _.pick(filter, ['status']);
+    return deliveryOrderRepo.findAll(filter);
   }
 
   getDeliveryOrderStatus(ownerId, orderId) {

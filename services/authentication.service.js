@@ -58,7 +58,8 @@ class AuthenticationService {
         {},
         { headers: HEADERS }
       )
-      .then(response => response.data);
+      .then(response => response.data)
+      .then(saveUser);
   }
 
   refreshMeliMobileToken(refreshToken) {
@@ -68,7 +69,8 @@ class AuthenticationService {
         {},
         { headers: HEADERS }
       )
-      .then(response => response.data);
+      .then(response => response.data)
+      .then(saveUser);
   }
 
   getUser(token) {

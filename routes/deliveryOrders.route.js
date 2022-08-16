@@ -68,7 +68,7 @@ router.get('/',
     const accessToken = req.get('Authorization');
     const filter = req.query.status ? {status: req.query.status} : {};
     const user = await userService.getUser(accessToken);
-    deliveryOrdersService.findAll(user.id, accessToken, filter)
+    deliveryOrdersService.findAllByOwner(user.id, accessToken, filter)
       .then(deliveryOrders => {
         res.status(200).send(deliveryOrders);
       })

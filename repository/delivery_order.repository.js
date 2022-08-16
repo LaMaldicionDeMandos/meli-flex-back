@@ -55,6 +55,10 @@ class DeliveryOrderRepository {
         return db.DeliveryOrder.find(_.assign(filter,{ownerId: ownerId}));
     }
 
+    findAll(filter) {
+      return db.DeliveryOrder.find(filter);
+    }
+
     getStatus(ownerId, id) {
       return db.DeliveryOrder.findOne({ownerId: ownerId, _id: id}).select({status: 1, _id: 0});
     }

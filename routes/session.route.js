@@ -16,13 +16,13 @@ router.post('/refreshToken', (req, res) => {
 });
 
 router.post('/mobile/accessToken', (req, res) => {
-  service.requestMeliAccessToken(req.body.code)
+  service.requestMeliMobileAccessToken(req.body.code)
     .then(response => res.status(201).send(response))
     .catch(e => res.status(500).send(e.message));
 });
 
 router.post('/mobile/refreshToken', (req, res) => {
-  service.refreshMeliToken(req.body.refresh_token)
+  service.refreshMeliMobileToken(req.body.refresh_token)
     .then(token => res.status(201).send(token))
     .catch(e => res.status(500).send(e.message));
 });
