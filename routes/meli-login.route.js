@@ -4,7 +4,9 @@ const router = express.Router();
 const MELI_URL = process.env.MELI_MOBILE_LOGIN_REDIRECT_URL;
 
 router.get('/',  (req, res, next) => {
-  res.redirect(`${MELI_URL}?code=${req.query.code}`);
+  const redirectUrl = `${MELI_URL}?code=${req.query.code}`;
+  console.log('Redirecting to ' + redirectUrl);
+  res.redirect(redirectUrl);
 });
 
 module.exports = router;
