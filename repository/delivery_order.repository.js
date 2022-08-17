@@ -48,7 +48,8 @@ class DeliveryOrderRepository {
     }
 
     findAllIdsOfStatus(status) {
-        return db.DeliveryOrder.find({status: status}).select({_id: 0});
+        return db.DeliveryOrder.find({status: status}).select({_id: 1})
+          .then(models => _.map(models, model => model._id));
     }
 
     findAllByOwner(ownerId, filter) {
