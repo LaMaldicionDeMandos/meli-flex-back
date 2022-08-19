@@ -47,7 +47,7 @@ router.get('/orders/:id',
 router.post('/orders/:id/dealer',
   async (req, res, next) => {
     const accessToken = req.get('Authorization');
-    const user = userService.getUser(accessToken);
+    const user = await userService.getUser(accessToken);
     deliveryOrdersService.assignDealer(user.id, req.params.id)
       .then(result => {
         res.status(201).send(result);

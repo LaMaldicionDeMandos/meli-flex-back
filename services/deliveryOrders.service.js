@@ -113,8 +113,8 @@ class DeliveryOrdersService {
 
   async assignDealer(dealerId, orderId) {
     const order = await deliveryOrderRepo.getById(orderId);
-    if (order.status === deliveryOrderRepo.PAID && !orderId.dealerId)
-      return deliveryOrderRepo.updateById(orderId, {dealerId: dealerId});
+    if (order.status === deliveryOrderRepo.PAID && !order.dealerId)
+      return deliveryOrderRepo.updateById(orderId, {dealerId: dealerId, status: deliveryOrderRepo.ACCEPTED});
     else return Promise.reject({message: 'unavailable_order'});
   }
 

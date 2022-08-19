@@ -70,6 +70,7 @@ class DeliveryOrderRepository {
 
     get PAID() { return 'paid'; }
     get PENDING() { return 'pending'; }
+    get ACCEPTED() { return 'accepted'; }
 }
 
 const repo = new DeliveryOrderRepository();
