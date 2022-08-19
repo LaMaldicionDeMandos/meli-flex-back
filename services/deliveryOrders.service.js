@@ -111,6 +111,19 @@ class DeliveryOrdersService {
     return deliveryOrderRepo.getStatus(ownerId, orderId);
   }
 
+  async assignDealer(dealerId, orderId) {
+    const order = await deliveryOrderRepo.getById(orderId);
+    if (order.status === deliveryOrderRepo.PAID && !orderId.dealerId)
+      return deliveryOrderRepo.updateById(orderId, {dealerId: dealerId});
+    else return Promise.reject({message: 'unavailable_order'});
+  }
+
+  async getPopulatedDeliveryOrder(id, accessToken) {
+    const order = await deliveryOrderRepo.getById(id);
+    const userInfo = await userService.getUserInfo(accessToken, order.ownerId);
+    return _.assign(order, {owner: userInfo});
+  }
+
   async deleteDeliveryOrder(ownerId, orderId) {
     const status = await this.getDeliveryOrderStatus(ownerId, orderId);
     if (status.status === deliveryOrderRepo.PENDING) {

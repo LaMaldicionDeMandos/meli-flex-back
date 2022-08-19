@@ -17,6 +17,7 @@ const DeliveryOrderSchema = new Schema({
     _id: String,
     name: String,
     ownerId: {type: String, index: true},
+    dealerId: {type: String, index: true},
     transactionId: {type: String, index: true},
     cost: Number,
     deliveryPrice: Number,

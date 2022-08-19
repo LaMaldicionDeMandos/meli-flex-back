@@ -27,6 +27,15 @@ class UserService {
       )
       .then(response => response.data);
   }
+
+  getUserInfo(accessToken, userId) {
+    return axios
+      .get(
+        `${MELI_URL}/users/${userId}`,
+        { headers: HEADERS({Authorization: `Bearer ${accessToken}`}) }
+      )
+      .then(response => response.data);
+  }
 }
 
 const service = new UserService();
