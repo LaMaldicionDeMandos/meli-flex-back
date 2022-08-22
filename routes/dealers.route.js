@@ -30,6 +30,21 @@ router.get('/orders/available',
       });
   });
 
+router.get('/orders/my',
+  [keepPropertiesAfter('_id,orders,location,origin,deliveryPrice,owner(nickname,permalink,seller_reputation),ttl')],
+  async (req, res, next) => {
+    const accessToken = req.get('Authorization');
+    const user = await userService.getUser(accessToken);
+
+    deliveryOrdersService.findAllByDealer(user.id, accessToken,{status: 'accepted'})
+      .then(deliveryOrders => {
+        res.status(200).send(deliveryOrders);
+      })
+      .catch(e => {
+        res.sendStatus(500);
+      });
+  });
+
 router.get('/orders/:id',
   [keepPropertiesAfter('_id,orders,location,origin,deliveryPrice,owner(nickname,permalink,seller_reputation),ttl')],
   async (req, res, next) => {

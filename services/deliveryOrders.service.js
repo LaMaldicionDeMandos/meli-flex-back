@@ -102,6 +102,16 @@ class DeliveryOrdersService {
       .then(orders => Promise.all(_.map(orders, order => this.#populateDeliveryOrder(order, accessToken))));
   }
 
+  async findAllByDealer(dealerId, accessToken, filter = {}) {
+    filter = this.#createFilterByClient(filter);
+    const orders = await deliveryOrderRepo.findAllByDealer(dealerId, filter);
+    const promises = _.map(orders, async (order) => {
+      const userInfo = await userService.getUserInfo(accessToken, order.ownerId);
+      return _.assign(order, {owner: userInfo});
+    });
+    return Promise.all(promises);
+  }
+
   findAll(filter = {}) {
     filter = _.pick(filter, ['status']);
     return deliveryOrderRepo.findAll(filter);

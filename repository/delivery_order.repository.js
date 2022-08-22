@@ -56,6 +56,10 @@ class DeliveryOrderRepository {
         return db.DeliveryOrder.find(_.assign(filter,{ownerId: ownerId}));
     }
 
+  findAllByDealer(dealerId, filter) {
+    return db.DeliveryOrder.find(_.assign(filter,{dealerId: dealerId}));
+  }
+
     findAll(filter) {
       return db.DeliveryOrder.find(filter);
     }
