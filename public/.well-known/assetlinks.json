@@ -1,0 +1,5 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target" : { "namespace": "android_app", "package_name": "com.mpasut.happyshipping",
+    "sha256_cert_fingerprints": ["FA:70:95:27:59:27:08:2B:4B:87:F9:33:7B:FA:EF:C7:A1:7B:A7:B2:66:71:F3:24:C8:1C:FD:57:D1:CD:30:ED"] }
+}]
