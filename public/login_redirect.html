@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script type='text/javascript'>window.opener.location.href='**Your new url of new page after completing test**';self.close();</script>
+    <script type='text/javascript'>
+      function close_window() {
+        window.close();
+      }
+    </script>
 </head>
-<body>
-<h1>SARAZA</h1>
-<script type='text/javascript'>window.opener.location.href='**Your new url of new page after completing test**';self.close();</script>
+<body onload="close_window()">
+<a href="#" onclick="close_window();return false;">Cerrar</a>
 </body>
 </html>
