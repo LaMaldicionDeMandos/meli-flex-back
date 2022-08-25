@@ -27,6 +27,7 @@ const corsOptions = {
     }
 };
 app.use(cors(corsOptions));
+app.use(express.static( 'public'));
 app.set('view engine', 'html');
 
 app.use(logger('dev'));
