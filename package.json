@@ -25,6 +25,7 @@
     "mongoose-paginate-v2": "^1.4.3",
     "morgan": "~1.9.1",
     "multer": "^1.4.4",
+    "node-deeplink": "^0.6.0",
     "node-mailjet": "^3.3.4",
     "number-formatter": "^1.2.0",
     "passport": "^0.5.0",
