@@ -8,7 +8,7 @@ const MELI_URL = process.env.MELI_MOBILE_LOGIN_REDIRECT_URL;
 
 router.get('/',
   (req, res, next) => {
-    const redirectUrl = `/login?code=${req.query.code}`;
+    const redirectUrl = `http://localhost/login?code=${req.query.code}`;
     req.query['url'] = redirectUrl;
     next();
   },
