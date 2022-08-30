@@ -28,6 +28,18 @@ const DeliveryOrderSchema = new Schema({
     expiration_minutes: Number,
 }, {timestamps: true});
 
+const DealerProfileSchema = new Schema({
+    _id: String,
+    dealerId: {type: String, index: true, required: true, unique: true},
+    firstName: String,
+    lastName: String,
+    dni: String,
+    dniFrontUri: String,
+    dniBackUri: String,
+    profileImageUri: String,
+    cbu: String,
+}, {timestamps: true});
+
 const PaymentInfoSchema = new Schema( {
     _id: String,
     transaction_id: {type: String, index: true},
@@ -51,6 +63,7 @@ const PaymentInfoSchema = new Schema( {
 
 const DeliveryOrder = mongoose.model('DeliveryOrder', DeliveryOrderSchema);
 const PaymentInfo = mongoose.model('PaymentInfo', PaymentInfoSchema);
+const DealerProfile = mongoose.model('DealerProfile', DealerProfileSchema);
 
 const db = new function() {
     mongoose.connect(process.env.MONGODB_URI);
@@ -59,6 +72,7 @@ const db = new function() {
     this.ObjectId = mongoose.Types.ObjectId;
     this.DeliveryOrder = DeliveryOrder;
     this.PaymentInfo = PaymentInfo;
+    this.DealerProfile = DealerProfile;
 };
 
 process.on('exit', function() {

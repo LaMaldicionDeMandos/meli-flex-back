@@ -4,6 +4,7 @@ const keepPropertiesAfter = require('./keepPropertiesAfter');
 
 const deliveryOrdersService = require('../services/deliveryOrders.service');
 const userService = require('../services/user.service');
+const dealerService = require('../services/dealer.service');
 
 const router = express.Router();
 
@@ -67,6 +68,29 @@ router.post('/orders/:id/dealer',
       .then(result => {
         res.status(201).send(result);
       })
+      .catch(e => {
+        res.sendStatus(500);
+      });
+  });
+
+router.post('/profile',
+  async (req, res, next) => {
+    const accessToken = req.get('Authorization');
+    const user = await userService.getUser(accessToken);
+    console.log('Profile: ' + JSON.stringify(req.body));
+    dealerService.setProfile(user.id, req.body)
+      .then(profile => res.status(201).send(profile))
+      .catch(e => {
+        res.sendStatus(500);
+      });
+  });
+
+router.get('/profile/me',
+  (req, res, next) => {
+    const accessToken = req.get('Authorization');
+    userService.getUser(accessToken)
+      .then(user => dealerService.getProfileByDealer(user.id))
+      .then(profile => res.send(profile))
       .catch(e => {
         res.sendStatus(500);
       });
