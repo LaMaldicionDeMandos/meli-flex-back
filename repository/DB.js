@@ -38,6 +38,12 @@ const DealerProfileSchema = new Schema({
     dniBackUri: String,
     profileImageUri: String,
     cbu: String,
+    status: {type: String, enum: ['new', 'active', 'suspendend', 'vanned'], index: true},
+    phone: String,
+    cancels: Number,
+    claims: Number,
+    delays: Number,
+    shippings: Number,
 }, {timestamps: true});
 
 const PaymentInfoSchema = new Schema( {

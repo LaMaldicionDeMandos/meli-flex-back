@@ -13,6 +13,11 @@ class DealerProfileRepository {
         profile.dniBackUri =  profileDTO.dniBackUri;
         profile.profileImageUri =  profileDTO.profileImageUri;
         profile.cbu =  profileDTO.cbu;
+        profile.shippings = 0;
+        profile.claims = 0;
+        profile.cancels = 0;
+        profile.delays = 0;
+        profile.vanned = false;
 
         return profile.save();
     }

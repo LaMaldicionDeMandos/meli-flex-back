@@ -86,6 +86,7 @@ router.post('/profile',
   });
 
 router.get('/profile/me',
+  [keepPropertiesAfter('_id,dealerId,firstName,lastName,profileImageUri,dni,phone,cbu,shippings,reputation,cancels,claims,delays')],
   (req, res, next) => {
     const accessToken = req.get('Authorization');
     userService.getUser(accessToken)
