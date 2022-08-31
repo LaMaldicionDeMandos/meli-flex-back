@@ -11,6 +11,7 @@ const meliLoginRouter = require('./routes/meli-login.route');
 const ordersRouter = require('./routes/orders.route');
 const deliveryOrdersRouter = require('./routes/deliveryOrders.route');
 const dealersRouter = require('./routes/dealers.route');
+const adminLoginRoute = require('./routes/admin-login.route');
 
 const app = express();
 
@@ -41,5 +42,6 @@ app.use('/meli/login', meliLoginRouter);
 app.use('/orders', ordersRouter);
 app.use('/delivery', deliveryOrdersRouter);
 app.use('/dealers', dealersRouter);
+app.use('/admin/login', adminLoginRoute);
 
 module.exports = app;
