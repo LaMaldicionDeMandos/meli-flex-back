@@ -17,13 +17,29 @@ class DealerProfileRepository {
         profile.claims = 0;
         profile.cancels = 0;
         profile.delays = 0;
-        profile.vanned = false;
+        profile.status = this.NEW_STATUS;
 
         return profile.save();
     }
 
     getByDealerId(dealerId) {
         return db.DealerProfile.findOne({dealerId: dealerId});
+    }
+
+    get NEW_STATUS() {
+        return 'new';
+    }
+
+    get ACTIVE_STATUS() {
+        return 'active';
+    }
+
+    get SUSPENDED_STATUS() {
+        return 'suspended';
+    }
+
+    get VANNED_STATUS() {
+        return 'vanned';
     }
 }
 
