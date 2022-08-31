@@ -38,7 +38,7 @@ const DealerProfileSchema = new Schema({
     dniBackUri: String,
     profileImageUri: String,
     cbu: String,
-    status: {type: String, enum: ['new', 'active', 'suspended', 'vanned'], index: true},
+    status: {type: String, enum: ['new', 'active', 'suspended', 'rejected'], index: true},
     phone: String,
     cancels: Number,
     claims: Number,

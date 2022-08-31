@@ -38,8 +38,8 @@ class DealerProfileRepository {
         return 'suspended';
     }
 
-    get VANNED_STATUS() {
-        return 'vanned';
+    get REJECTED_STATUS() {
+        return 'rejected';
     }
 }
 

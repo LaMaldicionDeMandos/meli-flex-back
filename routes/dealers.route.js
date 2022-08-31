@@ -5,6 +5,7 @@ const keepPropertiesAfter = require('./keepPropertiesAfter');
 const deliveryOrdersService = require('../services/deliveryOrders.service');
 const userService = require('../services/user.service');
 const dealerService = require('../services/dealer.service');
+const dealerRepo = require('../repository/dealer_profile.repository');
 
 const router = express.Router();
 
@@ -20,14 +21,24 @@ router.get('/orders/available',
   [keepPropertiesAfter('_id,orders,location,origin,deliveryPrice,ttl')],
   async (req, res, next) => {
     const accessToken = req.get('Authorization');
-    await userService.getUser(accessToken);
-
-    deliveryOrdersService.findAll({status: 'paid'})
-      .then(deliveryOrders => {
-        res.status(200).send(deliveryOrders);
-      })
-      .catch(e => {
-        res.sendStatus(500);
+    userService.getUser(accessToken)
+      .then(async (user) => {
+        const profile = await dealerService.getProfileByDealer(user.id);
+        if (profile.status === dealerRepo.SUSPENDED_STATUS) {
+          return Promise.reject({status: 'suspended'});
+        }
+        if (profile.status === dealerRepo.REJECTED_STATUS) {
+          return Promise.reject({status: 'rejected'});
+        }
+      }).then(() => {
+        return deliveryOrdersService.findAll({status: 'paid'})
+          .then(deliveryOrders => {
+            res.status(200).send(deliveryOrders);
+          });
+      }).catch(e => {
+        if (e.status === dealerRepo.SUSPENDED_STATUS || e.status === dealerRepo.REJECTED_STATUS)
+          res.status(403).send(e);
+        else res.sendStatus(500);
       });
   });
 
